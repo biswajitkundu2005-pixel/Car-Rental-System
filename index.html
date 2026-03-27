@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DriveEase — Premium Car Rentals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="Style.css">
+</head>
+
+<body>
+
+  <div class="color-band"></div>
+
+  <nav>
+    <div class="logo">Drive<span>Ease</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchPage('customer', this)">🚗 Browse Cars</button>
+      <button class="nav-tab" onclick="switchPage('admin', this)">⚙️ Admin <span class="nav-badge"
+          id="adminBadge">0</span></button>
+    </div>
+  </nav>
+
+  <div class="toast" id="toast">
+    <span class="toast-icon" id="toastIcon">✓</span>
+    <span id="toastMsg">Success!</span>
+  </div>
+
+  <div class="modal-overlay" id="rentModal">
+    <div class="modal">
+      <div class="modal-title">Confirm Rental</div>
+      <div class="modal-sub" id="rentModalSub">You're about to rent this vehicle.</div>
+      <div class="form-group">
+        <label class="form-label">Rental Duration (Days)</label>
+        <input type="number" class="form-input" id="rentalDays" placeholder="e.g. 3" min="1" value="1">
+      </div>
+      <div id="rentalCostDisplay" class="rental-cost-display"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-confirm" onclick="confirmRent()">Confirm Rental</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page active" id="page-customer">
+
+    <div class="hero">
+      <div class="hero-bg-overlay"></div>
+      <div class="hero-content">
+        <div class="hero-tag">● Premium Fleet Available Now</div>
+        <h1>FIND YOUR<br>PERFECT RIDE</h1>
+        <p>Handpicked vehicles for every journey — city commutes to weekend escapes.</p>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <div class="stat-num c1" id="statTotal">4</div>
+            <div class="stat-label">Total Fleet</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-num c2" id="statAvail">4</div>
+            <div class="stat-label">Available</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-num c3" id="statRented">0</div>
+            <div class="stat-label">On Road</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-car-showcase">
+        <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?w=900&q=80&auto=format&fit=crop"
+          alt="Featured Car" class="hero-car-img" />
+        <div class="hero-car-glow"></div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="setFilter('all', this)">All Cars</button>
+      <button class="filter-btn" onclick="setFilter('available', this)">Available</button>
+      <button class="filter-btn" onclick="setFilter('rented', this)">Rented</button>
+      <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search by brand or model..."
+        oninput="renderCustomer()">
+    </div>
+
+    <div class="cars-section">
+      <div class="section-label"><span class="live-dot"></span>Live Fleet Status</div>
+      <div class="cars-grid" id="carsGrid"></div>
+    </div>
+  </div>
+
+  <div class="page" id="page-admin">
+    <div class="admin-layout">
+      <aside class="admin-sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-label">Management</div>
+          <div class="sidebar-item active" onclick="adminNav(this,'admin-fleet')">
+            <span class="sidebar-icon">🚗</span> Fleet Overview
+          </div>
+          <div class="sidebar-item" onclick="adminNav(this,'admin-add')">
+            <span class="sidebar-icon">➕</span> Add Vehicle
+          </div>
+          <div class="sidebar-item" onclick="adminNav(this,'admin-analytics')">
+            <span class="sidebar-icon">📊</span> Analytics
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-label">Quick Stats</div>
+          <div class="sidebar-stats">
+            <div class="sidebar-revenue-label">Revenue Today</div>
+            <div class="sidebar-revenue" id="sidebarRevenue">₹0</div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="admin-content">
+        <div id="admin-fleet">
+          <div class="admin-header">
+            <div class="admin-title">Fleet Overview</div>
+            <button class="btn-primary" onclick="adminNav(document.querySelectorAll('.sidebar-item')[1],'admin-add')">+
+              Add Vehicle</button>
+          </div>
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">Total Vehicles</div>
+              <div class="kpi-value" id="kpiTotal">4</div>
+              <div class="kpi-sub">in fleet</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Available</div>
+              <div class="kpi-value" id="kpiAvail">4</div>
+              <div class="kpi-sub">ready to rent</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Revenue</div>
+              <div class="kpi-value" id="kpiRevenue">₹0</div>
+              <div class="kpi-sub">est. earned</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Rented Out</div>
+              <div class="kpi-value" id="kpiRented">0</div>
+              <div class="kpi-sub">on the road</div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-title"><span>📋</span> Vehicle Registry</div>
+            <div class="admin-table-wrap">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Vehicle</th>
+                    <th>ID</th>
+                    <th>Brand / Model</th>
+                    <th>Rent/Day</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="adminTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="admin-add" class="admin-section-hidden">
+          <div class="admin-header">
+            <div class="admin-title">Add Vehicle</div>
+          </div>
+          <div class="panel">
+            <div class="panel-title"><span>🚗</span> Vehicle Details</div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Car ID</label>
+                <input type="number" class="form-input" id="aCarId" placeholder="e.g. 105">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Brand</label>
+                <input type="text" class="form-input" id="aBrand" placeholder="e.g. Toyota">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Model</label>
+                <input type="text" class="form-input" id="aModel" placeholder="e.g. Innova">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Rent Per Day (₹)</label>
+                <input type="number" class="form-input" id="aRent" placeholder="e.g. 2500">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Category</label>
+                <select class="form-select" id="aCategory">
+                  <option value="SUV">SUV</option>
+                  <option value="Sedan">Sedan</option>
+                  <option value="Hatchback">Hatchback</option>
+                  <option value="Luxury">Luxury</option>
+                  <option value="Electric">Electric</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Fuel Type</label>
+                <select class="form-select" id="aFuel">
+                  <option value="Petrol">Petrol</option>
+                  <option value="Diesel">Diesel</option>
+                  <option value="Electric">Electric</option>
+                  <option value="CNG">CNG</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn-primary" onclick="adminAddCar()">➕ Add to Fleet</button>
+          </div>
+        </div>
+
+        <div id="admin-analytics" class="admin-section-hidden">
+          <div class="admin-header">
+            <div class="admin-title">Analytics</div>
+          </div>
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">Utilisation Rate</div>
+              <div class="kpi-value" id="utilRate">0%</div>
+              <div class="kpi-sub">fleet in use</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Avg Rent/Day</div>
+              <div class="kpi-value" id="avgRent">₹0</div>
+              <div class="kpi-sub">across fleet</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Potential Daily</div>
+              <div class="kpi-value" id="potDaily">₹0</div>
+              <div class="kpi-sub">if 100% rented</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Est. Revenue</div>
+              <div class="kpi-value" id="estRevenue">₹0</div>
+              <div class="kpi-sub">rented cars today</div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-title"><span>📈</span> Fleet Breakdown</div>
+            <div id="analyticsBreakdown"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // Real car images from Unsplash (free, no API key)
+    const CAR_IMAGES = {
+      Toyota: 'Innova.jpg',
+      Maruti: 'maruti.jpg',
+      Honda: 'honda.jpg',
+      Hyundai: 'https://images.unsplash.com/photo-1629897048514-3dd7414fe72a?w=600&q=80&auto=format&fit=crop',
+      BMW: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=600&q=80&auto=format&fit=crop',
+      Mercedes: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=600&q=80&auto=format&fit=crop',
+      Audi: 'https://images.unsplash.com/photo-1606152421802-db97b9c7a11b?w=600&q=80&auto=format&fit=crop',
+      Tata: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=600&q=80&auto=format&fit=crop',
+      Kia: 'https://images.unsplash.com/photo-1617469767053-d3b523a0b982?w=600&q=80&auto=format&fit=crop',
+      MG: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=600&q=80&auto=format&fit=crop',
+      default: 'https://images.unsplash.com/photo-1502877338535-766e1452684a?w=600&q=80&auto=format&fit=crop'
+    };
+
+    const CAR_FEATURES = {
+      SUV: ['5 Seater', 'AC', '4WD'],
+      Sedan: ['5 Seater', 'AC', 'Sunroof'],
+      Hatchback: ['5 Seater', 'AC', 'Compact'],
+      Luxury: ['5 Seater', 'Premium', 'Sunroof'],
+      Electric: ['5 Seater', 'Electric', 'Silent']
+    };
+
+    const CAR_COLORS = ['bg-purple', 'bg-red', 'bg-teal', 'bg-gold', 'bg-blue', 'bg-green'];
+
+    let cars = [
+      { id: 101, brand: 'Toyota', model: 'Innova', rent: 2500, available: true, category: 'SUV', fuel: 'Diesel', colorClass: 'bg-purple' },
+      { id: 102, brand: 'Maruti', model: 'Swift', rent: 1500, available: true, category: 'Hatchback', fuel: 'Petrol', colorClass: 'bg-teal' },
+      { id: 103, brand: 'Honda', model: 'City', rent: 2200, available: true, category: 'Sedan', fuel: 'Petrol', colorClass: 'bg-red' },
+      { id: 104, brand: 'Hyundai', model: 'i20', rent: 1800, available: true, category: 'Hatchback', fuel: 'Petrol', colorClass: 'bg-gold' }
+    ];
+
+    let currentFilter = 'all';
+    let pendingRentIdx = -1;
+    let totalRevenue = 0;
+
+    function switchPage(page, btn) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('page-' + page).classList.add('active');
+      btn.classList.add('active');
+      if (page === 'admin') updateAdmin();
+    }
+
+    function adminNav(el, sectionId) {
+      document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+      ['admin-fleet', 'admin-add', 'admin-analytics'].forEach(id => {
+        document.getElementById(id).style.display = id === sectionId ? 'block' : 'none';
+      });
+      if (sectionId === 'admin-analytics') updateAnalytics();
+    }
+
+    function setFilter(filter, btn) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderCustomer();
+    }
+
+    function renderCustomer() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const grid = document.getElementById('carsGrid');
+      const availableCount = cars.filter(c => c.available).length;
+      const rentedCount = cars.length - availableCount;
+
+      document.getElementById('statTotal').textContent = cars.length;
+      document.getElementById('statAvail').textContent = availableCount;
+      document.getElementById('statRented').textContent = rentedCount;
+      document.getElementById('adminBadge').textContent = rentedCount;
+
+      const filtered = cars.filter(car => {
+        const matchFilter =
+          currentFilter === 'all' ||
+          (currentFilter === 'available' && car.available) ||
+          (currentFilter === 'rented' && !car.available);
+        const matchSearch =
+          !search ||
+          car.brand.toLowerCase().includes(search) ||
+          car.model.toLowerCase().includes(search);
+        return matchFilter && matchSearch;
+      });
+
+      if (!filtered.length) {
+        grid.innerHTML = `<div class="empty-state full-width"><div class="big-emoji">🔍</div><p>No cars found matching your criteria.</p></div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(car => {
+        const idx = cars.indexOf(car);
+        const imgSrc = CAR_IMAGES[car.brand] || CAR_IMAGES.default;
+        const features = CAR_FEATURES[car.category] || ['5 Seater', 'AC'];
+
+        return `
+      <div class="car-card ${!car.available ? 'rented-card' : ''}">
+        <div class="car-img-wrap">
+          <img src="${imgSrc}" alt="${car.brand} ${car.model}" class="car-real-img" loading="lazy" />
+          <div class="car-img-overlay"></div>
+          <div class="car-badge ${car.available ? 'badge-available' : 'badge-rented'}">
+            ${car.available ? '● AVAILABLE' : '● RENTED'}
+          </div>
+          <div class="car-id-tag">#${car.id}</div>
+          <div class="car-category-tag">${car.category}</div>
+        </div>
+        <div class="car-body">
+          <div class="car-brand-row">
+            <div class="car-brand">${car.brand}</div>
+            <div class="car-fuel-badge">${car.fuel || 'Petrol'}</div>
+          </div>
+          <div class="car-name">${car.model}</div>
+          <div class="car-price">
+            <div class="price-num">₹${car.rent.toLocaleString()}</div>
+            <div class="price-unit">/ day</div>
+          </div>
+          <div class="car-features">
+            ${features.map(f => `<div class="feature-tag">${f}</div>`).join('')}
+          </div>
+          <div class="car-actions">
+            ${car.available
+            ? `<button class="btn btn-rent" onclick="openRentModal(${idx})">Rent Now →</button>`
+            : `<button class="btn btn-return" onclick="returnCar(${idx})">Return Car</button>`
+          }
+            <button class="btn btn-ghost" onclick="carInfo(${idx})" title="Info">ℹ</button>
+          </div>
+        </div>
+      </div>
+    `;
+      }).join('');
+    }
+
+    function openRentModal(idx) {
+      pendingRentIdx = idx;
+      const car = cars[idx];
+      document.getElementById('rentModalSub').textContent = `${car.brand} ${car.model} — ₹${car.rent.toLocaleString()}/day`;
+      document.getElementById('rentalDays').value = 1;
+      updateRentalCost();
+      document.getElementById('rentModal').classList.add('show');
+    }
+
+    document.getElementById('rentalDays').addEventListener('input', updateRentalCost);
+
+    function updateRentalCost() {
+      if (pendingRentIdx < 0) return;
+      const days = parseInt(document.getElementById('rentalDays').value) || 1;
+      const cost = cars[pendingRentIdx].rent * days;
+      document.getElementById('rentalCostDisplay').textContent = `Total: ₹${cost.toLocaleString()} for ${days} day${days > 1 ? 's' : ''}`;
+    }
+
+    function closeModal() {
+      document.getElementById('rentModal').classList.remove('show');
+      pendingRentIdx = -1;
+    }
+
+    function confirmRent() {
+      if (pendingRentIdx < 0) return;
+      const days = parseInt(document.getElementById('rentalDays').value) || 1;
+      const car = cars[pendingRentIdx];
+      car.available = false;
+      totalRevenue += car.rent * days;
+      closeModal();
+      renderCustomer();
+      showToast('✅', `${car.brand} ${car.model} rented for ${days} day(s)! Cost: ₹${(car.rent * days).toLocaleString()}`);
+    }
+
+    function returnCar(idx) {
+      cars[idx].available = true;
+      renderCustomer();
+      updateAdmin();
+      showToast('🔄', `${cars[idx].brand} ${cars[idx].model} returned successfully!`);
+    }
+
+    function carInfo(idx) {
+      const car = cars[idx];
+      showToast('ℹ️', `#${car.id} | ${car.brand} ${car.model} | ${car.category} | ${car.fuel} | ₹${car.rent}/day`);
+    }
+
+    function updateAdmin() {
+      const availableCount = cars.filter(c => c.available).length;
+      const rentedCount = cars.length - availableCount;
+      document.getElementById('kpiTotal').textContent = cars.length;
+      document.getElementById('kpiAvail').textContent = availableCount;
+      document.getElementById('kpiRented').textContent = rentedCount;
+      document.getElementById('kpiRevenue').textContent = '₹' + totalRevenue.toLocaleString();
+      document.getElementById('sidebarRevenue').textContent = '₹' + totalRevenue.toLocaleString();
+
+      document.getElementById('adminTableBody').innerHTML = cars.map((car, idx) => {
+        const imgSrc = CAR_IMAGES[car.brand] || CAR_IMAGES.default;
+        return `
+      <tr>
+        <td><img src="${imgSrc}" alt="${car.brand}" class="car-thumb-img" /></td>
+        <td><span class="table-id">#${car.id}</span></td>
+        <td><div class="table-brand">${car.brand}</div><div class="table-model">${car.model}</div></td>
+        <td><span class="table-rent">₹${car.rent.toLocaleString()}</span></td>
+        <td><span class="status-pill ${car.available ? 'pill-available' : 'pill-rented'}">${car.available ? 'Available' : 'Rented'}</span></td>
+        <td>
+          <div class="table-actions">
+            <button class="btn-success" onclick="adminToggle(${idx})">${car.available ? 'Rent' : 'Return'}</button>
+            <button class="btn-danger" onclick="adminDelete(${idx})">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `;
+      }).join('');
+    }
+
+    function adminToggle(idx) {
+      cars[idx].available = !cars[idx].available;
+      if (!cars[idx].available) totalRevenue += cars[idx].rent;
+      updateAdmin();
+      renderCustomer();
+      showToast('🔁', `${cars[idx].brand} ${cars[idx].model} status updated.`);
+    }
+
+    function adminDelete(idx) {
+      const car = cars[idx];
+      cars.splice(idx, 1);
+      updateAdmin();
+      renderCustomer();
+      showToast('🗑️', `${car.brand} ${car.model} removed from fleet.`);
+    }
+
+    function adminAddCar() {
+      const id = parseInt(document.getElementById('aCarId').value);
+      const brand = document.getElementById('aBrand').value.trim();
+      const model = document.getElementById('aModel').value.trim();
+      const rent = parseFloat(document.getElementById('aRent').value);
+      const category = document.getElementById('aCategory').value;
+      const fuel = document.getElementById('aFuel').value;
+
+      if (!id || !brand || !model || !rent) { showToast('⚠️', 'Please fill in all fields.'); return; }
+      if (cars.find(c => c.id === id)) { showToast('⚠️', `Car ID #${id} already exists.`); return; }
+
+      cars.push({ id, brand, model, rent, available: true, category, fuel, colorClass: CAR_COLORS[cars.length % CAR_COLORS.length] });
+      ['aCarId', 'aBrand', 'aModel', 'aRent'].forEach(f => document.getElementById(f).value = '');
+      updateAdmin();
+      renderCustomer();
+      showToast('✅', `${brand} ${model} added to fleet!`);
+    }
+
+    function updateAnalytics() {
+      const availableCount = cars.filter(c => c.available).length;
+      const rentedCount = cars.length - availableCount;
+      const utilisation = cars.length ? Math.round((rentedCount / cars.length) * 100) : 0;
+      const averageRent = cars.length ? Math.round(cars.reduce((s, c) => s + c.rent, 0) / cars.length) : 0;
+      const potentialDaily = cars.reduce((s, c) => s + c.rent, 0);
+      const estimatedRevenue = cars.filter(c => !c.available).reduce((s, c) => s + c.rent, 0);
+
+      document.getElementById('utilRate').textContent = utilisation + '%';
+      document.getElementById('avgRent').textContent = '₹' + averageRent.toLocaleString();
+      document.getElementById('potDaily').textContent = '₹' + potentialDaily.toLocaleString();
+      document.getElementById('estRevenue').textContent = '₹' + estimatedRevenue.toLocaleString();
+
+      document.getElementById('analyticsBreakdown').innerHTML = cars.map(car => {
+        const imgSrc = CAR_IMAGES[car.brand] || CAR_IMAGES.default;
+        return `
+      <div class="analytics-row">
+        <img src="${imgSrc}" alt="${car.brand}" class="analytics-img" />
+        <div class="analytics-main">
+          <div class="analytics-name">${car.brand} ${car.model}</div>
+          <div class="analytics-sub">#${car.id} · ${car.category} · ${car.fuel}</div>
+        </div>
+        <div class="analytics-right">
+          <div class="analytics-price">₹${car.rent.toLocaleString()}/day</div>
+          <div class="analytics-status ${car.available ? 'analytics-available' : 'analytics-rented'}">${car.available ? 'AVAILABLE' : 'RENTED'}</div>
+        </div>
+      </div>
+    `;
+      }).join('');
+    }
+
+    let toastTimer;
+    function showToast(icon, message) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastIcon').textContent = icon;
+      document.getElementById('toastMsg').textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+    }
+
+    renderCustomer();
+    updateAdmin();
+  </script>
+</body>
+
+</html>
